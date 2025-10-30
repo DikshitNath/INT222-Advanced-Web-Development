@@ -12,8 +12,13 @@ const __dirname = dirname(__filename);
 app.use(express.urlencoded({ extended: true })) 
 
 app.get('/showform',(req,res)=>{
-  res.sendFile(path.join(__dirname, 'form.html'));
-
+  res.send(
+    `<form action="/submitform" method="POST">
+        Username: <input type="text" name="username"><br>
+        Email: <input type="email" name="email"><br>
+        <input type="submit" value="Submit">
+    </form>`
+  )
 });
 
 app.post('/submitform', (req, res) => {
