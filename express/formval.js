@@ -22,10 +22,14 @@ app.post('/submit', [
 ], (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.send("Please fill the form correctly <a href='/'>Try again</a>");
+        const errorMessage = errors.array().map(err => `<li>${errors.msg}</li>`).join('');
+        return res.send(
+            `<h3>Form Validation Failed</h3>
+            <ul>${errorMessage}</ul>
+            <a href="/">Try again</a>`
+        )
     }
-    res.send(`<h2>Submitted Details are : ${req.body.name} and ${req.body.email}</h2>
-              <h3>Data saved successfully!</h3>`);
+    res.send(`<h2>Success</h2><p>Name: ${req.body.name}</p><p>Email: ${req.body.email}</p>`)
 })
 
 app.listen(3000,()=>{
