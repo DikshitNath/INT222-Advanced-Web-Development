@@ -14,7 +14,7 @@ app.get('/set-theme/:mode', (req, res) => {
 
 
 app.get('/', (req, res) => {
-    const theme = req.cookies.theme;
+    const theme = req.cookies.theme || 'light';
     res.send(`
         <html>
         <head>
