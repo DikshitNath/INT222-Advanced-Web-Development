@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Socket.IO Chat — Simple</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; padding: 20px; max-width: 700px; margin: auto; }
+    .chat { border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
+    #messages { list-style: none; padding: 0; height: 300px; overflow-y: auto; margin-bottom: 12px; }
+    #messages li { padding: 6px 8px; margin-bottom: 6px; background: #f5f5f5; border-radius: 6px; }
+    .meta { font-size: 11px; color: #666; margin-bottom: 4px; }
+    .controls { display:flex; gap:8px; }
+    #chatBox { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc; }
+    #sendBtn { padding: 10px 14px; border-radius:6px; border: none; background: #4CAF50; color: white; cursor: pointer; }
+    #sendBtn:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <h2>Simple Socket.IO Chat</h2>
+
+  <div class="chat">
+    <ul id="messages"></ul>
+
+    <div class="controls">
+      <input id="chatBox" type="text" placeholder="Type your message..." autocomplete="off" />
+      <button id="sendBtn">Send</button>
+    </div>
+    <p class="meta">Press <strong>Enter</strong> to send or click <strong>Send</strong>.</p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const chatBox = document.getElementById("chatBox");
+    const sendBtn = document.getElementById("sendBtn");
+    const messages = document.getElementById("messages");
+
+    // Helper to append a message
+    function appendMessage({ id, text, time }) {
+      const li = document.createElement("li");
+      const timeStr = new Date(time).toLocaleTimeString();
+
+      li.innerHTML = `
+        <div class="meta"><strong>${id}</strong> <span style="color:#999">at ${timeStr}</span></div>
+        <div>${escapeHtml(text)}</div>
+      `;
+      messages.appendChild(li);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Basic escaping to avoid HTML injection
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Send when clicking send
+    sendBtn.addEventListener("click", () => {
+      const msg = chatBox.value.trim();
+      if (!msg) return;
+      socket.emit("chatMessage", msg);
+      chatBox.value = "";
+      chatBox.focus();
+    });
+
+    // Send when pressing Enter
+    chatBox.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    // Receive broadcasted messages
+    socket.on("chatMessage", (payload) => {
+      appendMessage(payload);
+    });
+
+    // Optional: show connection id in console
+    socket.on("connect", () => {
+      console.log("Connected as", socket.id);
+    });
+  </script>
+</body>
+</html>
