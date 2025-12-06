@@ -11,7 +11,6 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Serve static files from /public
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
@@ -21,11 +20,9 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
-  // When this socket sends a chat message
   socket.on("chatMessage", (msg) => {
     console.log(`Message from ${socket.id}:`, msg);
 
-    // Broadcast to all connected clients (including sender)
     io.emit("chatMessage", {
       id: socket.id,
       text: msg,
